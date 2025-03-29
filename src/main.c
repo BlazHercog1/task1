@@ -50,8 +50,28 @@ main(int argc, char *argv[])
             fprintf(stderr, "Napaka pri pisanju v datoteko\n");
             return 1;
         }
-        
     }
+
+    if (output_path)
+    {
+        struct stat buffer;
+        if(stat(output_path, &buffer) == 0){
+            fprintf(stderr, "Napaka pri pisanju v datoteko\n");
+            return 1;
+        }
+        output = fopen(output_path, "w");
+        if (!output)
+        {
+            fprintf(stderr, "Napaka pri pisanju v datoteko\n");
+            return 1;
+        }
+    }
+
+    int use_table_format = isatty(fileno(output));
+
+    struct Struktura str;
+    
+    
     
     printf("Hello world!\n");
     return EXIT_SUCCESS;
