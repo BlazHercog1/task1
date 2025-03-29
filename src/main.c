@@ -25,6 +25,34 @@ void print_table(struct Struktura str, FILE *out){
 
 main(int argc, char *argv[])
 {
+    const char *input_path=NULL, *output_path=NULL;
+    FILE *input = stdin;
+    FILE *output = stdout;
+
+    //obdelujemo argumente
+    for(int i = 1; i < argc; i++){
+        if (strcmp(argv[i], "-h") == 0)
+        {
+            print_help();
+            return 0;
+        } else if (strcmp(argv[i], "-i") == 0 && i+1<argc){
+            input_path = argv[++i];
+        } else if (strcmp(argv[i], "-o") == 0 && i+1<argc)
+        {
+            output_path = argv[++i];
+        }  
+    }
+    if (input_path)
+    {
+        input = fopen(input_path, "rb");
+        if (!input)
+        {
+            fprintf(stderr, "Napaka pri pisanju v datoteko\n");
+            return 1;
+        }
+        
+    }
+    
     printf("Hello world!\n");
     return EXIT_SUCCESS;
 }
