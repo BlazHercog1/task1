@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
-struct Struktura {
+typedef struct {
     unsigned short index;
     char code[3];
     int units;
     double length;
-};
+}__attribute__ ((packed)) Struktura;
 
 void print_help(){
     printf("tableprint\n\n");
@@ -15,17 +16,18 @@ void print_help(){
     printf("-o <pot>\n Kot izhod program odpre in uporabi zbirko/napravo s podano potjo\n");
 }
 
-void print_csv(struct Struktura str, FILE *out){
+void print_csv(Struktura str, FILE *out){
     fprintf(out, "%u, \"%.*s\", %d, %.6f\n", str.index, 3, str.code, str.units, str.length);
 }
 
-void print_table(struct Struktura str, FILE *out){
-    fprintf(out, "%-5u | %-3.3s | %10d | %8.4f\n", str.index, str.code, str.units,str.length);
+void print_table(Struktura str, FILE *out){
+     fprintf(out, "%-5u | %-3.3s | %10d | %8.4f\n", str.index, str.code, str.units, str.length);
 }
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    const char *input_path=NULL, *output_path=NULL;
+    char *input_path = NULL; 
+    char *output_path = NULL;
     FILE *input = stdin;
     FILE *output = stdout;
 
@@ -35,9 +37,9 @@ main(int argc, char *argv[])
         {
             print_help();
             return 0;
-        } else if (strcmp(argv[i], "-i") == 0 && i+1<argc){
+        } else if (strcmp(argv[i], "-i") == 0 && i + 1 < argc){
             input_path = argv[++i];
-        } else if (strcmp(argv[i], "-o") == 0 && i+1<argc)
+        } else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc)
         {
             output_path = argv[++i];
         }  
@@ -67,12 +69,27 @@ main(int argc, char *argv[])
         }
     }
 
-    int use_table_format = isatty(fileno(output));
+    int terminal_output = isatty(fileno(output));
 
-    struct Struktura str;
+    Struktura str;
+    while (fread(&str, sizeof(Struktura), 1, input) == 1)
+    {
+        if (terminal_output){
+            print_table(str, output);
+        }
+        else{
+            print_csv(str, output);
+        }
+    }
     
+    if (input != stdin)
+    {
+        fclose(input);
+    }
     
-    
-    printf("Hello world!\n");
-    return EXIT_SUCCESS;
+    if (output != stdout)
+    {
+        fclose(output);
+    }
+    return 0;
 }
